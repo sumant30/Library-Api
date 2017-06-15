@@ -30,14 +30,23 @@ namespace Library . API . Controllers
                 return NotFound ( );
             }
             var books = _repo.GetBooksForAuthor(authorId);
-            return Ok ( Mapper . Map < IEnumerable<BookDto> > ( books ) );
+            return Ok ( Mapper . Map<IEnumerable<BookDto>> ( books ) );
         }
 
         // GET api/values/5
         [HttpGet ( "{id}" )]
-        public string Get ( int id )
+        public IActionResult Get ( Guid authorId , Guid id )
         {
-            return "value";
+            if ( !_repo . AuthorExists ( authorId ) )
+            {
+                return NotFound ( );
+            }
+            var book = _repo.GetBookForAuthor(authorId,id);
+            if ( book == null )
+            {
+                return NotFound ( );
+            }
+            return Ok ( Mapper . Map<BookDto> ( book ) );
         }
 
         // POST api/values
