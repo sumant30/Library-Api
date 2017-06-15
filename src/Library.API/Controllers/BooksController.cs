@@ -23,7 +23,10 @@ namespace Library . API . Controllers
         [HttpGet]
         public IActionResult GetBooks ( Guid authorId )
         {
-
+            if ( !_repo . AuthorExists ( authorId ) )
+            {
+                return NotFound ( );
+            }
         }
 
         // GET api/values/5
