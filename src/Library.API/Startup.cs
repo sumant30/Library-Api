@@ -59,7 +59,14 @@ namespace Library.API
             }
             else
             {
-                app.UseExceptionHandler();
+                app.UseExceptionHandler(cfg => {
+                    cfg . Run ( async context =>
+                        {
+                            context . Response . StatusCode = 500;
+                            await context . Response . WriteAsync ( "An unexpected fault has happened. Please try after some time." );
+                        } );
+
+                } );
             }
 
             AutoMapper . Mapper . Initialize ( cfg =>
