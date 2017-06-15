@@ -23,18 +23,22 @@ namespace Library . API . Controllers
 
         // GET: api/values
         [HttpGet]
-        public IActionResult Get ( )
+        public IActionResult Authors ( )
         {
             var authors = _repo.GetAuthors();
             var authorsDto = Mapper.Map<IEnumerable<AuthorDto>>(authors);
-            return new JsonResult ( authorsDto );
+            return Ok ( authorsDto );
         }
 
         // GET api/values/5
         [HttpGet ( "{id}" )]
-        public string Get ( int id )
+        public IActionResult Author ( Guid id )
         {
-            return "value";
+            var author = _repo.GetAuthor(id);
+            if ( author == null )
+                return NotFound ( );
+            else
+                return Ok ( Mapper . Map<AuthorDto> ( author ) );
         }
 
         // POST api/values
