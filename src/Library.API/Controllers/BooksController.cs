@@ -4,6 +4,8 @@ using System . Linq;
 using System . Threading . Tasks;
 using Microsoft . AspNetCore . Mvc;
 using Library . API . Services;
+using AutoMapper;
+using Library . API . Models;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -27,6 +29,8 @@ namespace Library . API . Controllers
             {
                 return NotFound ( );
             }
+            var books = _repo.GetBooksForAuthor(authorId);
+            return Ok ( Mapper . Map < IEnumerable<BookDto> > ( books ) );
         }
 
         // GET api/values/5
