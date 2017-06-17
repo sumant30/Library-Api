@@ -35,7 +35,7 @@ namespace Library . API . Controllers
         }
 
         // GET api/values/5
-        [HttpGet ( "{id}",Name ="GetBookForAuthor" )]
+        [HttpGet ( "{id}" , Name = "GetBookForAuthor" )]
         public IActionResult Get ( Guid authorId , Guid id )
         {
             if ( !_repo . AuthorExists ( authorId ) )
@@ -51,14 +51,14 @@ namespace Library . API . Controllers
         }
 
         // POST api/values
-        [HttpPost()]
-        public IActionResult Post (Guid authorId, [FromBody]BookForCreationDto book )
+        [HttpPost ( )]
+        public IActionResult Post ( Guid authorId , [FromBody]BookForCreationDto book )
         {
-            if(book == null )
+            if ( book == null )
             {
                 return BadRequest ( );
             }
-            if (! _repo . AuthorExists ( authorId ) )
+            if ( !_repo . AuthorExists ( authorId ) )
             {
                 return BadRequest ( );
             }
@@ -83,8 +83,23 @@ namespace Library . API . Controllers
 
         // DELETE api/values/5
         [HttpDelete ( "{id}" )]
-        public void Delete ( int id )
+        public IActionResult Delete ( Guid authorId , Guid id )
         {
+            if ( !_repo . AuthorExists ( authorId ) )
+            {
+                return NotFound ( );
+            }
+            var book  = _repo.GetBookForAuthor(authorId,id);
+            if ( book == null )
+            {
+                return NotFound ( );
+            }
+            _repo . DeleteBook ( book );
+            if ( !_repo . Save ( ) )
+            {
+                throw new Exception ( $"An error when deleting book {id} for author {authorId}" );
+            }
+            return NoContent ( );
         }
     }
 }
