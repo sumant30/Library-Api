@@ -90,7 +90,17 @@ namespace Library . API . Controllers
             var bookEntity  = _repo.GetBookForAuthor(authorId,id);
             if ( book == null )
             {
-                return NotFound ( );
+                var bookToInsert = Mapper.Map<Book>(book);
+                bookToInsert . Id = id;
+                _repo . AddBookForAuthor ( authorId , bookToInsert );
+                if ( !_repo . Save ( ) )
+                {
+                    throw new Exception ( $"An exception occured when trying to insert book {id} for author {authorId}" );
+                }
+                var bookToReturn = Mapper.Map<BookDto>(bookToInsert);
+                return CreatedAtRoute ( "GetBookForAuthor" ,
+                    new { authorId = authorId , id = bookToReturn . Id } , bookToReturn );
+
             }
             Mapper . Map ( book , bookEntity );
             _repo . UpdateBookForAuthor ( bookEntity );
