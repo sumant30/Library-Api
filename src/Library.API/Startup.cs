@@ -40,6 +40,7 @@ namespace Library.API
 
                 cfg . ReturnHttpNotAcceptable = true;
                 cfg . OutputFormatters . Add ( new XmlDataContractSerializerOutputFormatter ( ) );
+                cfg . InputFormatters . Add ( new XmlDataContractSerializerInputFormatter ( ) );
             } );
 
             // register the DbContext on the container, getting the connection string from
