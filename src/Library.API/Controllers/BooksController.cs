@@ -6,6 +6,7 @@ using Microsoft . AspNetCore . Mvc;
 using Library . API . Services;
 using AutoMapper;
 using Library . API . Models;
+using Library . API . Entities;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -34,7 +35,7 @@ namespace Library . API . Controllers
         }
 
         // GET api/values/5
-        [HttpGet ( "{id}" )]
+        [HttpGet ( "{id}",Name ="GetBookForAuthor" )]
         public IActionResult Get ( Guid authorId , Guid id )
         {
             if ( !_repo . AuthorExists ( authorId ) )
@@ -50,9 +51,28 @@ namespace Library . API . Controllers
         }
 
         // POST api/values
-        [HttpPost]
-        public void Post ( [FromBody]string value )
+        [HttpPost()]
+        public IActionResult Post (Guid authorId, [FromBody]BookForCreationDto book )
         {
+            if(book == null )
+            {
+                return BadRequest ( );
+            }
+            if (! _repo . AuthorExists ( authorId ) )
+            {
+                return BadRequest ( );
+            }
+
+            var bookEntity = Mapper.Map<Book>(book);
+
+            _repo . AddBookForAuthor ( authorId , bookEntity );
+            if ( !_repo . Save ( ) )
+            {
+                throw new Exception ( $"Creating book failed for {authorId}" );
+            }
+            var bookToReturn = Mapper.Map<BookDto>(bookEntity);
+            return CreatedAtRoute ( "GetBookForAuthor" ,
+                new { authorId = authorId , id = bookEntity . Id } , bookToReturn );
         }
 
         // PUT api/values/5
