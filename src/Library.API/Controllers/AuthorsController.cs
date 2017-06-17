@@ -69,8 +69,19 @@ namespace Library . API . Controllers
 
         // DELETE api/values/5
         [HttpDelete ( "{id}" )]
-        public void Delete ( int id )
+        public IActionResult Delete ( Guid id )
         {
+            var author = _repo.GetAuthor(id);
+            if(author == null )
+            {
+                return NotFound ( );
+            }
+            _repo . DeleteAuthor ( author );
+            if ( !_repo . Save ( ) )
+            {
+                throw new Exception ( $"An error occured when trying to delete author {id}" );
+            }
+            return NoContent ( );
         }
 
         [HttpPost("{id}")]
