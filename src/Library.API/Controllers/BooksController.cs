@@ -77,8 +77,28 @@ namespace Library . API . Controllers
 
         // PUT api/values/5
         [HttpPut ( "{id}" )]
-        public void Put ( int id , [FromBody]string value )
+        public IActionResult Put ( Guid authorId , Guid id , [FromBody]BookForUpdateDto book )
         {
+            if ( book == null )
+            {
+                return BadRequest ( );
+            }
+            if ( !_repo . AuthorExists ( authorId ) )
+            {
+                return NotFound ( );
+            }
+            var bookEntity  = _repo.GetBookForAuthor(authorId,id);
+            if ( book == null )
+            {
+                return NotFound ( );
+            }
+            Mapper . Map ( book , bookEntity );
+            _repo . UpdateBookForAuthor ( bookEntity );
+            if ( !_repo . Save ( ) )
+            {
+                throw new Exception ( $"An exception occured when trying to update book {id} for author {authorId}" );
+            }
+            return NoContent ( );
         }
 
         // DELETE api/values/5
