@@ -7,6 +7,7 @@ using Library . API . Services;
 using AutoMapper;
 using Library . API . Models;
 using Library . API . Entities;
+using Microsoft . AspNetCore . Http;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -70,6 +71,16 @@ namespace Library . API . Controllers
         [HttpDelete ( "{id}" )]
         public void Delete ( int id )
         {
+        }
+
+        [HttpPost("{id}")]
+        public IActionResult BlockAuthorCreation(Guid id )
+        {
+            if ( _repo . AuthorExists ( id ) )
+            {
+                return new StatusCodeResult ( StatusCodes . Status409Conflict );
+            }
+            return NotFound ( );
         }
     }
 }
