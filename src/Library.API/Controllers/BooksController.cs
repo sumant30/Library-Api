@@ -134,7 +134,7 @@ namespace Library . API . Controllers
         }
 
         [HttpPatch ( "{id}" )]
-        public IActionResult PartialUpdateForBook ( Guid authorId , Guid id , JsonPatchDocument<BookForUpdateDto> patchDoc )
+        public IActionResult PartialUpdateForBook ( Guid authorId , Guid id ,[FromBody] JsonPatchDocument<BookForUpdateDto> patchDoc )
         {
             if ( patchDoc == null )
             {
@@ -155,7 +155,7 @@ namespace Library . API . Controllers
 
             Mapper . Map ( bookToPatch , bookEntity );
 
-            _repo . AddBookForAuthor ( authorId , bookEntity );
+            _repo . UpdateBookForAuthor ( bookEntity );
 
             if ( !_repo . Save ( ) )
             {
