@@ -8,6 +8,7 @@ using AutoMapper;
 using Library . API . Models;
 using Library . API . Entities;
 using Microsoft . AspNetCore . JsonPatch;
+using Library . API . Helpers;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -58,6 +59,14 @@ namespace Library . API . Controllers
             if ( book == null )
             {
                 return BadRequest ( );
+            }
+            if ( book . Title == book . Description )
+            {
+                ModelState . AddModelError ( nameof ( BookForCreationDto ) , "Title & Description should be different." );
+            }
+            if ( !ModelState . IsValid )
+            {
+                return new UnprocessableEntityObjectResult ( ModelState );
             }
             if ( !_repo . AuthorExists ( authorId ) )
             {
@@ -134,7 +143,7 @@ namespace Library . API . Controllers
         }
 
         [HttpPatch ( "{id}" )]
-        public IActionResult PartialUpdateForBook ( Guid authorId , Guid id ,[FromBody] JsonPatchDocument<BookForUpdateDto> patchDoc )
+        public IActionResult PartialUpdateForBook ( Guid authorId , Guid id , [FromBody] JsonPatchDocument<BookForUpdateDto> patchDoc )
         {
             if ( patchDoc == null )
             {
