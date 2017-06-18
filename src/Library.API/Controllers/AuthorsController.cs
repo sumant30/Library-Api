@@ -8,6 +8,7 @@ using AutoMapper;
 using Library . API . Models;
 using Library . API . Entities;
 using Microsoft . AspNetCore . Http;
+using Library . API . Helpers;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,6 +19,8 @@ namespace Library . API . Controllers
     {
         ILibraryRepository _repo;
 
+
+
         public AuthorsController ( ILibraryRepository repo )
         {
             _repo = repo;
@@ -25,15 +28,16 @@ namespace Library . API . Controllers
 
         // GET: api/values
         [HttpGet]
-        public IActionResult Authors ( )
+        public IActionResult Authors ( AuthorResourceParameters authorResourceParameters )
         {
-            var authors = _repo.GetAuthors();
+            
+            var authors = _repo.GetAuthors(authorResourceParameters);
             var authorsDto = Mapper.Map<IEnumerable<AuthorDto>>(authors);
             return Ok ( authorsDto );
         }
 
         // GET api/values/5
-        [HttpGet ( "{id}",Name ="GetAuthor" )]
+        [HttpGet ( "{id}" , Name = "GetAuthor" )]
         public IActionResult Author ( Guid id )
         {
             var author = _repo.GetAuthor(id);
@@ -72,7 +76,7 @@ namespace Library . API . Controllers
         public IActionResult Delete ( Guid id )
         {
             var author = _repo.GetAuthor(id);
-            if(author == null )
+            if ( author == null )
             {
                 return NotFound ( );
             }
@@ -84,8 +88,8 @@ namespace Library . API . Controllers
             return NoContent ( );
         }
 
-        [HttpPost("{id}")]
-        public IActionResult BlockAuthorCreation(Guid id )
+        [HttpPost ( "{id}" )]
+        public IActionResult BlockAuthorCreation ( Guid id )
         {
             if ( _repo . AuthorExists ( id ) )
             {
