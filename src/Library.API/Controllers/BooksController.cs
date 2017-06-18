@@ -7,6 +7,7 @@ using Library . API . Services;
 using AutoMapper;
 using Library . API . Models;
 using Library . API . Entities;
+using Microsoft . AspNetCore . JsonPatch;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -128,6 +129,37 @@ namespace Library . API . Controllers
             if ( !_repo . Save ( ) )
             {
                 throw new Exception ( $"An error when deleting book {id} for author {authorId}" );
+            }
+            return NoContent ( );
+        }
+
+        [HttpPatch ( "{id}" )]
+        public IActionResult PartialUpdateForBook ( Guid authorId , Guid id , JsonPatchDocument<BookForUpdateDto> patchDoc )
+        {
+            if ( patchDoc == null )
+            {
+                return BadRequest ( );
+            }
+            if ( !_repo . AuthorExists ( authorId ) )
+            {
+                return NotFound ( );
+            }
+            var bookEntity  = _repo.GetBookForAuthor(authorId,id);
+            if ( bookEntity == null )
+            {
+                return NotFound ( );
+            }
+
+            var bookToPatch = Mapper.Map<BookForUpdateDto>(bookEntity);
+            patchDoc . ApplyTo ( bookToPatch );
+
+            Mapper . Map ( bookToPatch , bookEntity );
+
+            _repo . AddBookForAuthor ( authorId , bookEntity );
+
+            if ( !_repo . Save ( ) )
+            {
+                throw new Exception ( $"An exception occured when trying to patch book {id} for author {authorId}" );
             }
             return NoContent ( );
         }
