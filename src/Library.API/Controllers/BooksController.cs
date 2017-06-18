@@ -147,7 +147,19 @@ namespace Library . API . Controllers
             var bookEntity  = _repo.GetBookForAuthor(authorId,id);
             if ( bookEntity == null )
             {
-                return NotFound ( );
+                //Upserting with patch
+                var bookDto = new BookForUpdateDto();
+                patchDoc . ApplyTo ( bookDto );
+                var bookToAdd = Mapper.Map<Book>(bookDto);
+                bookToAdd . Id = id;
+                _repo . AddBookForAuthor ( authorId , bookToAdd );
+                if ( !_repo . Save ( ) )
+                {
+                    throw new Exception ( $"An exception occured when trying to upsert book {id} for author {authorId}" );
+                }
+                var bookToReturn = Mapper.Map<BookDto>(bookToAdd);
+                return CreatedAtRoute ( "GetBookForAuthor" ,
+                    new { authorId = authorId , id = bookToReturn . Id } , bookToReturn );
             }
 
             var bookToPatch = Mapper.Map<BookForUpdateDto>(bookEntity);
