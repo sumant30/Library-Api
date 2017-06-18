@@ -166,7 +166,18 @@ namespace Library . API . Controllers
             {
                 //Upserting with patch
                 var bookDto = new BookForUpdateDto();
-                patchDoc . ApplyTo ( bookDto );
+                patchDoc . ApplyTo ( bookDto,ModelState );
+
+                if ( bookDto . Title == bookDto . Description )
+                {
+                    ModelState . AddModelError ( nameof ( BookForUpdateDto ) , "Title & Description should be different." );
+                }
+                TryValidateModel ( bookDto );
+                if ( !ModelState . IsValid )
+                {
+                    return new UnprocessableEntityObjectResult ( ModelState );
+                }
+
                 var bookToAdd = Mapper.Map<Book>(bookDto);
                 bookToAdd . Id = id;
                 _repo . AddBookForAuthor ( authorId , bookToAdd );
@@ -180,7 +191,17 @@ namespace Library . API . Controllers
             }
 
             var bookToPatch = Mapper.Map<BookForUpdateDto>(bookEntity);
-            patchDoc . ApplyTo ( bookToPatch );
+            patchDoc . ApplyTo ( bookToPatch,ModelState );
+
+            if ( bookToPatch . Title == bookToPatch . Description )
+            {
+                ModelState . AddModelError ( nameof ( BookForUpdateDto ) , "Title & Description should be different." );
+            }
+            TryValidateModel ( bookToPatch );
+            if ( !ModelState . IsValid )
+            {
+                return new UnprocessableEntityObjectResult ( ModelState );
+            }
 
             Mapper . Map ( bookToPatch , bookEntity );
 
