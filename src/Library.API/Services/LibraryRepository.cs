@@ -70,7 +70,25 @@ namespace Library.API.Services
             var beforePaging =  _context
                     .Authors
                     .OrderBy(a => a.FirstName)
-                    .ThenBy(a => a.LastName);
+                    .ThenBy(a => a.LastName). AsQueryable ( );
+
+            if ( !string . IsNullOrEmpty ( authorResourceParameters . Genre ) )
+            {
+                beforePaging = beforePaging . Where ( x => x . Genre . ToLowerInvariant ( ) == authorResourceParameters . Genre.Trim() . ToLowerInvariant ( ) ) ;
+            }
+
+            if ( !string . IsNullOrEmpty ( authorResourceParameters . SearchQuery ) )
+            {
+                var searchQueryForWhereClause = authorResourceParameters.SearchQuery.Trim().ToLowerInvariant();
+                beforePaging =
+                    beforePaging . Where ( 
+                        x => x . Genre . ToLowerInvariant ( ) . Contains ( searchQueryForWhereClause ) 
+                        ||
+                        x . FirstName . ToLowerInvariant ( ) . Contains ( searchQueryForWhereClause )
+                        ||
+                        x . LastName . ToLowerInvariant ( ) . Contains ( searchQueryForWhereClause )
+                    );
+            }
 
             return PagedList<Author>.Create ( beforePaging , authorResourceParameters . PageNumber , authorResourceParameters . PageSize );
         }
