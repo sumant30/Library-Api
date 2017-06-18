@@ -93,6 +93,14 @@ namespace Library . API . Controllers
             {
                 return BadRequest ( );
             }
+            if ( book . Title == book . Description )
+            {
+                ModelState . AddModelError ( nameof ( BookForUpdateDto ) , "Title & Description should be different." );
+            }
+            if ( !ModelState . IsValid )
+            {
+                return new UnprocessableEntityObjectResult ( ModelState );
+            }
             if ( !_repo . AuthorExists ( authorId ) )
             {
                 return NotFound ( );
