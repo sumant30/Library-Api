@@ -14,6 +14,7 @@ using Microsoft . EntityFrameworkCore;
 using Library . API . Models;
 using Library . API . Helpers;
 using Microsoft . AspNetCore . Mvc . Formatters;
+using Microsoft . AspNetCore . Diagnostics;
 
 namespace Library.API
 {
@@ -59,6 +60,8 @@ namespace Library.API
         {
             loggerFactory.AddConsole();
 
+            loggerFactory . AddDebug (LogLevel.Information );
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -68,6 +71,12 @@ namespace Library.API
                 app.UseExceptionHandler(cfg => {
                     cfg . Run ( async context =>
                         {
+                            var exceptionHandler = context.Features.Get<IExceptionHandlerFeature>();
+                            if ( exceptionHandler != null )
+                            {
+                                var logger = loggerFactory.CreateLogger("global exception logger");
+                                logger . LogError ( 500 , exceptionHandler . Error , exceptionHandler . Error . Message );
+                            }
                             context . Response . StatusCode = 500;
                             await context . Response . WriteAsync ( "An unexpected fault has happened. Please try after some time." );
                         } );
