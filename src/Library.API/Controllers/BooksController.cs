@@ -9,6 +9,7 @@ using Library . API . Models;
 using Library . API . Entities;
 using Microsoft . AspNetCore . JsonPatch;
 using Library . API . Helpers;
+using Microsoft . Extensions . Logging;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,10 +19,12 @@ namespace Library . API . Controllers
     public class BooksController : Controller
     {
         ILibraryRepository _repo;
+        ILogger<BooksController> _logger;
 
-        public BooksController ( ILibraryRepository repo )
+        public BooksController ( ILibraryRepository repo , ILogger<BooksController> logger )
         {
             _repo = repo;
+            _logger = logger;
         }
 
         // GET: api/values
@@ -147,6 +150,7 @@ namespace Library . API . Controllers
             {
                 throw new Exception ( $"An error when deleting book {id} for author {authorId}" );
             }
+            _logger . LogInformation ( 100 , $"Deleted book {id} for author {authorId}" );
             return NoContent ( );
         }
 
