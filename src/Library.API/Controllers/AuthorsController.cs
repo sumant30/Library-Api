@@ -22,16 +22,23 @@ namespace Library . API . Controllers
 
         IUrlHelper _urlHelper;
 
-        public AuthorsController ( ILibraryRepository repo , IUrlHelper urlHelper )
+        private IPropertyMappingService _propertyService;
+
+        public AuthorsController ( ILibraryRepository repo , IUrlHelper urlHelper , IPropertyMappingService propertyService )
         {
             _repo = repo;
             _urlHelper = urlHelper;
+            _propertyService = propertyService;
         }
 
         // GET: api/values
         [HttpGet ( Name = "GetAuthors" )]
         public IActionResult Authors ( AuthorResourceParameters authorResourceParameters )
         {
+            if ( !_propertyService . ValidMappingExistsFor<AuthorDto , Author> ( authorResourceParameters . OrderBy ) )
+            {
+                return BadRequest ( );
+            }
 
             var authors = _repo.GetAuthors(authorResourceParameters);
 
@@ -61,6 +68,7 @@ namespace Library . API . Controllers
                     return _urlHelper . Link ( "GetAuthors" ,
                         new
                         {
+                            orderBy = authorResourceParameters.OrderBy,
                             searchQuery = authorResourceParameters.SearchQuery,
                             genre = authorResourceParameters.Genre,
                             pageNumber = authorResourceParameters . PageNumber - 1 ,
@@ -70,6 +78,7 @@ namespace Library . API . Controllers
                     return _urlHelper . Link ( "GetAuthors" ,
                         new
                         {
+                            orderBy = authorResourceParameters . OrderBy ,
                             searchQuery = authorResourceParameters . SearchQuery ,
                             genre = authorResourceParameters . Genre ,
                             pageNumber = authorResourceParameters . PageNumber + 1 ,
@@ -79,6 +88,7 @@ namespace Library . API . Controllers
                     return _urlHelper . Link ( "GetAuthors" ,
                         new
                         {
+                            orderBy = authorResourceParameters . OrderBy ,
                             searchQuery = authorResourceParameters . SearchQuery ,
                             genre = authorResourceParameters . Genre ,
                             pageNumber = authorResourceParameters . PageNumber ,
