@@ -110,13 +110,18 @@ namespace Library . API . Controllers
 
         // GET api/values/5
         [HttpGet ( "{id}" , Name = "GetAuthor" )]
-        public IActionResult Author ( Guid id )
+        public IActionResult Author ( Guid id,[FromQuery] string fields )
         {
+            if ( !_typeHelper . TypeHasProperties<AuthorDto> ( fields ) )
+            {
+                return BadRequest ( );
+            }
+
             var author = _repo.GetAuthor(id);
             if ( author == null )
                 return NotFound ( );
             else
-                return Ok ( Mapper . Map<AuthorDto> ( author ) );
+                return Ok ( Mapper . Map<AuthorDto> ( author.ShapeData(fields) ) );
         }
 
         // POST api/values
