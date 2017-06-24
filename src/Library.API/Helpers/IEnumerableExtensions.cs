@@ -65,7 +65,7 @@ namespace Library.API.Helpers
                 foreach (var propertyInfo in propertyInfoList)
                 {
                     //get value returns the value of the property on the source object
-                    var propertyValue = propertyInfo.GetValue(propertyInfo);
+                    var propertyValue = propertyInfo.GetValue(sourceObject);
 
                     //ad the field to exapndo object
                     ( ( IDictionary<string , object> ) dataShapedObject ) . Add ( propertyInfo . Name , propertyValue );
