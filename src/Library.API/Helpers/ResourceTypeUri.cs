@@ -8,6 +8,7 @@ namespace Library.API.Helpers
     public enum ResourceTypeUri
     {
         PreviousPage,
-        NextPage
+        NextPage,
+        Current
     }
 }

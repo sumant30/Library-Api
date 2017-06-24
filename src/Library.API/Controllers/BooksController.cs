@@ -65,7 +65,7 @@ namespace Library . API . Controllers
         }
 
         // POST api/values
-        [HttpPost ( )]
+        [HttpPost (Name ="CreateBookForAuthor" )]
         public IActionResult Post ( Guid authorId , [FromBody]BookForCreationDto book )
         {
             if ( book == null )
