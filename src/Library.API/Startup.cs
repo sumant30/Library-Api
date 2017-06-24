@@ -46,6 +46,14 @@ namespace Library.API
                 cfg . ReturnHttpNotAcceptable = true;
                 cfg . OutputFormatters . Add ( new XmlDataContractSerializerOutputFormatter ( ) );
                 cfg . InputFormatters . Add ( new XmlDataContractSerializerInputFormatter ( ) );
+
+                var jsonOutputFormatter = cfg.OutputFormatters.OfType<JsonOutputFormatter>().FirstOrDefault();
+
+                if ( jsonOutputFormatter != null )
+                {
+                    jsonOutputFormatter . SupportedMediaTypes . Add ( "application/vnd.marvin.hateoas+json" );
+                }
+
             } ).AddJsonOptions(op => {
                 op . SerializerSettings . ContractResolver = new CamelCasePropertyNamesContractResolver ( );
             } );

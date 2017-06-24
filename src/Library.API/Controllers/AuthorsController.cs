@@ -36,7 +36,7 @@ namespace Library . API . Controllers
 
         // GET: api/values
         [HttpGet ( Name = "GetAuthors" )]
-        public IActionResult Authors ( AuthorResourceParameters authorResourceParameters )
+        public IActionResult Authors ( AuthorResourceParameters authorResourceParameters,[FromHeader(Name ="Accept")] string mediaType )
         {
             if ( !_propertyService . ValidMappingExistsFor<AuthorDto , Author> ( authorResourceParameters . OrderBy ) )
             {
@@ -49,22 +49,25 @@ namespace Library . API . Controllers
             }
 
             var authors = _repo.GetAuthors(authorResourceParameters);
-            
-            var paginationMetaData = new
+
+            if ( mediaType.Equals("application/vnd.marvin.hateoas+json" ))
             {
-                totalCount = authors.TotalCount,
-                pageSize = authors.PageSize,
-                currentPage = authors.CurrentPage,
-                totalPages = authors.TotalPages,
-               
-            };
 
-            Response . Headers . Add ( "X-Pagination" , JsonConvert . SerializeObject ( paginationMetaData ) );
+                var paginationMetaData = new
+                {
+                    totalCount = authors.TotalCount,
+                    pageSize = authors.PageSize,
+                    currentPage = authors.CurrentPage,
+                    totalPages = authors.TotalPages,
 
-            var authorsDto = Mapper.Map<IEnumerable<AuthorDto>>(authors);
-            var links  = CreateLinksForAuthors(authorResourceParameters,authors.HasNext,authors.HasPrevious);
-            var shapedData = authorsDto.ShapeData(authorResourceParameters.Fields);
-            var shapedAuthorWithLinks = shapedData.Select(x =>
+                };
+
+                Response . Headers . Add ( "X-Pagination" , JsonConvert . SerializeObject ( paginationMetaData ) );
+
+                var authorsDto = Mapper.Map<IEnumerable<AuthorDto>>(authors);
+                var links  = CreateLinksForAuthors(authorResourceParameters,authors.HasNext,authors.HasPrevious);
+                var shapedData = authorsDto.ShapeData(authorResourceParameters.Fields);
+                var shapedAuthorWithLinks = shapedData.Select(x =>
             {
                 var authorAsDictionary = x as IDictionary<string,object>;
                 var authorLinks = CreateLinksForAuthor((Guid)authorAsDictionary["Id"],authorResourceParameters.Fields);
@@ -74,13 +77,35 @@ namespace Library . API . Controllers
 
             });
 
-            var linkedCollectionResource = new
+                var linkedCollectionResource = new
+                {
+                    value = shapedAuthorWithLinks,
+                    links = links
+                };
+
+                return Ok ( linkedCollectionResource );
+            }
+            else
             {
-                value = shapedAuthorWithLinks,
-                links = links
-            };
-           
-            return Ok ( linkedCollectionResource );
+                var previousPageLink = authors.HasPrevious ? CreateAuthorResourceUri(authorResourceParameters,ResourceTypeUri.PreviousPage):null;
+                var nextPageLink = authors.HasNext ? CreateAuthorResourceUri(authorResourceParameters,ResourceTypeUri.NextPage):null;
+
+                var paginationMetaData = new
+                {
+                    previousPageLink=previousPageLink,
+                    nextPageLink=nextPageLink,
+                    totalCount = authors.TotalCount,
+                    pageSize = authors.PageSize,
+                    currentPage = authors.CurrentPage,
+                    totalPages = authors.TotalPages,
+
+                };
+
+                Response . Headers . Add ( "X-Pagination" , JsonConvert . SerializeObject ( paginationMetaData ) );
+
+                return Ok ( authors . ShapeData ( authorResourceParameters . Fields ) );
+
+            }
         }
 
         private string CreateAuthorResourceUri ( AuthorResourceParameters authorResourceParameters , ResourceTypeUri type )
